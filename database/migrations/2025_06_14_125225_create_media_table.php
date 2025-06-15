@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('media', function (Blueprint $table) {
             $table->id();
             $table->foreignId('portfolio_id')->constrained('portfolios')->onDelete('cascade'); // البورتفوليو المرتبط بالوسائط
-            $table->string('type'); // نوع الوسائط (صورة، فيديو، ملف)
+            $table->enum('type', ['img', 'vid', 'cv'])->default('img'); // حالة الطلب
             $table->string('url'); // رابط الوسائ
+            $table->string('caption')->nullable();
             $table->timestamps();
         });
     }

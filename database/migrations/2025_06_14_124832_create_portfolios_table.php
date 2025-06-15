@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('portfolios', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('provider_id')->constrained('service_providers')->onDelete('cascade'); // مقدم الخدمة المرتبط بالبورتفوليو
+            $table->foreignId('provider_id')->unique()->constrained('service_providers')->onDelete('cascade');
             $table->text('description')->nullable();
             $table->timestamps();
         });

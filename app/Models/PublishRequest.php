@@ -6,5 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class PublishRequest extends Model
 {
-    //
+    public function provider()
+{
+    return $this->belongsTo(ServiceProvider::class, 'provider_id');
+}
+
 }
