@@ -23,6 +23,12 @@ class User extends Authenticatable
         'email',
         'password',
     ];
+// app/Models/User.php
+
+public function setEmailAttribute($value)
+{
+    $this->attributes['email'] = strtolower($value);
+}
 
     public function serviceProvider()
     {

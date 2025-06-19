@@ -14,13 +14,19 @@ trait ApiResponseTrait
      * @param int $statusCode كود الحالة HTTP
      * @return JsonResponse
      */
-    public function successResponse($data, $message = "success", $statusCode = 200): JsonResponse
+    public function successResponse($data = null, $message = "success", $statusCode = 200): JsonResponse
     {
-        return response()->json([
-            'status' => 'success',
-            'message' => $message,
-            'data' => $data
-        ], $statusCode);
+       $response = [
+    'status' => 'success',
+    'message' => $message,
+      ];
+
+    if (!is_null($data)){
+    $response['data'] = $data;
+}
+
+return response()->json($response, $statusCode);
+
     }
 
     /**
