@@ -22,9 +22,6 @@ return new class extends Migration
             $table->string('phone_number');
             $table->text('address');
             $table->decimal('min_price', 10, 2);           
-            $table->string('profile_img')->nullable();
-            $table->string('identity_img');
-            $table->string('cover_img')->nullable();
             $table->timestamps();
         });
     }

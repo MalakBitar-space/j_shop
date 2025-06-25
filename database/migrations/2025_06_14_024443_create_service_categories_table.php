@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('category_name')->unique();
             $table->string('category_desc')->unique();
-            $table->string('cover_img')->nullable();
             $table->timestamps();
         });
     }
