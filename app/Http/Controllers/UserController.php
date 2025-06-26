@@ -1,65 +1,98 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use App\Traits\ApiResponseTrait;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-      use ApiResponseTrait;
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use ApiResponseTrait;
+
+    public function showProfile(Request $request)
     {
-        //
+        $user = $request->user();
+
+        $photoUrl = $user->getFirstMediaUrl('profile');
+        if (empty($photoUrl)) {
+            $photoUrl = asset('images/default-avatar.jpg');
+        }
+
+        return $this->successResponse([
+            'user' => [
+                'id'         => $user->id,
+                'name'       => $user->name,
+                'email'      => $user->email,
+                'photo_url'  => $photoUrl, // always fallback to default
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+            ]
+        ], 'تم جلب بيانات الملف الشخصي بنجاح');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function updateProfile(Request $request)
     {
-        //
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'name'     => 'nullable|string|max:100',
+            'email'    => 'nullable|email|max:100',
+            'password' => 'nullable|string|min:8',
+            'photo'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorResponse($validator->errors()->first(), 422);
+        }
+
+        $data = $validator->validated();
+
+        if (isset($data['name'])) {
+            $user->name = $data['name'];
+        }
+
+        if (isset($data['email'])) {
+            $user->email = strtolower($data['email']);
+        }
+
+        if (isset($data['password'])) {
+            $user->password = $data['password']; // بدون Hash::make()
+        }
+
+        if ($request->hasFile('photo')) {
+            $user->clearMediaCollection('profile');
+            $user->addMediaFromRequest('photo')->toMediaCollection('profile');
+        }
+
+        $user->save();
+
+        $photoUrl = $user->getFirstMediaUrl('profile');
+        if (empty($photoUrl)) {
+            $photoUrl = asset('images/default-avatar.jpg');
+        }
+
+        return $this->successResponse([
+            'user' => [
+                'id'         => $user->id,
+                'name'       => $user->name,
+                'email'      => $user->email,
+                'photo_url'  => $photoUrl, // always fallback to default
+                'updated_at' => $user->updated_at,
+            ]
+        ], 'تم تحديث الملف الشخصي بنجاح');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function deleteProfileImage(Request $request)
     {
-        //
-    }
+        $user = $request->user();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        if ($user->hasMedia('profile')) {
+            $user->clearMediaCollection('profile');
+            return $this->successResponse(null, 'تم حذف صورة الملف الشخصي بنجاح');
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return $this->errorResponse('لا توجد صورة لحذفها', 404);
     }
 }
