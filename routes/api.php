@@ -12,6 +12,7 @@ route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
 route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ServiceCategoryController;
 
 Route::middleware('auth:sanctum')->group(function () {
     
@@ -20,3 +21,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/deleteProfileImage', [UserController::class, 'deleteProfileImage']);
 
 });
+Route::get('index-category', [ServiceCategoryController::class, 'index']);
+Route::post('create-category', [ServiceCategoryController::class, 'store']);
+Route::get('show-category/{id}', [ServiceCategoryController::class, 'show']);
+Route::put('update-category/{id}', [ServiceCategoryController::class, 'update']);
+Route::delete('delete-category/{id}', [ServiceCategoryController::class, 'destroy']);
+
