@@ -16,7 +16,7 @@ class ServiceCategoryController extends Controller
         $categories = ServiceCategory::all()->map(function ($category) {
             $photoUrl = $category->getFirstMediaUrl('category_image');
             if (empty($photoUrl)) {
-                $photoUrl = asset('images/default-avatar.jpg');
+                $photoUrl = asset('images/default-category.jpg');
             }
             return [
                 'id' => $category->id,
@@ -38,7 +38,7 @@ class ServiceCategoryController extends Controller
         }
         $photoUrl = $category->getFirstMediaUrl('category_image');
         if (empty($photoUrl)) {
-            $photoUrl = asset('images/default-avatar.jpg');
+            $photoUrl = asset('images/default-category.jpg');
         }
         return $this->successResponse([
             'category' => [
