@@ -13,6 +13,7 @@ route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])-
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ServiceCategoryController;
+use App\Http\Controllers\ServiceController;
 
 Route::middleware('auth:sanctum')->group(function () {
     
@@ -26,3 +27,10 @@ Route::post('create-category', [ServiceCategoryController::class, 'store']);
 Route::get('show-category/{id}', [ServiceCategoryController::class, 'show']);
 Route::delete('delete-category/{id}', [ServiceCategoryController::class, 'destroy']);
 
+
+Route::get('index-service', [ServiceController::class, 'index']);
+Route::post('create-service', [ServiceController::class, 'store']);
+Route::get('show-service/{id}', [ServiceController::class, 'show']);
+Route::put('update-service/{id}', [ServiceController::class, 'update']);
+Route::delete('delete-service/{id}', [ServiceController::class, 'destroy']);
+Route::get('services-by-category/{category_id}', [ServiceController::class, 'getByCategory']);
