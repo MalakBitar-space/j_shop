@@ -79,55 +79,55 @@ class ServiceCategoryController extends Controller
         ], 'تم إنشاء التصنيف بنجاح', 201);
     }
 
-    public function update(Request $request, $id)
-    {
-        $category = ServiceCategory::find($id);
-        if (!$category) {
-            return $this->errorResponse('التصنيف غير موجود', 404);
-        }
+    // public function update(Request $request, $id)
+    // {
+    //     $category = ServiceCategory::find($id);
+    //     if (!$category) {
+    //         return $this->errorResponse('التصنيف غير موجود', 404);
+    //     }
 
-        $validator = Validator::make($request->all(), [
-            'category_name' => 'nullable|string|unique:service_categories,category_name,' . $id,
-            'category_desc' => 'nullable|string|unique:service_categories,category_desc,' . $id,
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
+    //     $validator = Validator::make($request->all(), [
+    //         'category_name' => 'nullable|string|unique:service_categories,category_name,' . $id,
+    //         'category_desc' => 'nullable|string|unique:service_categories,category_desc,' . $id,
+    //         'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    //     ]);
 
-        if ($validator->fails()) {
-            return $this->errorResponse($validator->errors()->first(), 422);
-        }
+    //     if ($validator->fails()) {
+    //         return $this->errorResponse($validator->errors()->first(), 422);
+    //     }
 
-        $data = $validator->validated();
+    //     $data = $validator->validated();
 
-        if (isset($data['category_name'])) {
-            $category->category_name = $data['category_name'];
-        }
-        if (isset($data['category_desc'])) {
-            $category->category_desc = $data['category_desc'];
-        }
+    //     if (isset($data['category_name'])) {
+    //         $category->category_name = $data['category_name'];
+    //     }
+    //     if (isset($data['category_desc'])) {
+    //         $category->category_desc = $data['category_desc'];
+    //     }
 
-        if ($request->hasFile('photo')) {
-            $category->clearMediaCollection('category_image');
-            $category->addMediaFromRequest('photo')->toMediaCollection('category_image');
-        }
+    //     if ($request->hasFile('photo')) {
+    //         $category->clearMediaCollection('category_image');
+    //         $category->addMediaFromRequest('photo')->toMediaCollection('category_image');
+    //     }
 
-        $category->save();
+    //     $category->save();
 
-        $photoUrl = $category->getFirstMediaUrl('category_image');
-        if (empty($photoUrl)) {
-            $photoUrl = asset('images/default-category.jpg');
-        }
+    //     $photoUrl = $category->getFirstMediaUrl('category_image');
+    //     if (empty($photoUrl)) {
+    //         $photoUrl = asset('images/default-category.jpg');
+    //     }
 
-        return $this->successResponse([
-            'category' => [
-                'id' => $category->id,
-                'category_name' => $category->category_name,
-                'category_desc' => $category->category_desc,
-                'photo_url' => $photoUrl,
-                'created_at' => $category->created_at,
-                'updated_at' => $category->updated_at,
-            ]
-        ], 'تم تحديث التصنيف بنجاح');
-    }
+    //     return $this->successResponse([
+    //         'category' => [
+    //             'id' => $category->id,
+    //             'category_name' => $category->category_name,
+    //             'category_desc' => $category->category_desc,
+    //             'photo_url' => $photoUrl,
+    //             'created_at' => $category->created_at,
+    //             'updated_at' => $category->updated_at,
+    //         ]
+    //     ], 'تم تحديث التصنيف بنجاح');
+    // }
 
     public function destroy($id)
 {

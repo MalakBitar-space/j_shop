@@ -24,7 +24,5 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('index-category', [ServiceCategoryController::class, 'index']);
 Route::post('create-category', [ServiceCategoryController::class, 'store']);
 Route::get('show-category/{id}', [ServiceCategoryController::class, 'show']);
-Route::post('create-category', [ServiceCategoryController::class, 'store']);
-Route::put('update-category/{id}', [ServiceCategoryController::class, 'update']);
 Route::delete('delete-category/{id}', [ServiceCategoryController::class, 'destroy']);
 
