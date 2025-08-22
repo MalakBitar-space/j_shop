@@ -31,6 +31,6 @@ Route::delete('delete-category/{id}', [ServiceCategoryController::class, 'destro
 Route::get('index-service', [ServiceController::class, 'index']);
 Route::post('create-service', [ServiceController::class, 'store']);
 Route::get('show-service/{id}', [ServiceController::class, 'show']);
-Route::put('update-service/{id}', [ServiceController::class, 'update']);
+Route::post('update-service/{id}', [ServiceController::class, 'update']);
 Route::delete('delete-service/{id}', [ServiceController::class, 'destroy']);
 Route::get('services-by-category/{category_id}', [ServiceController::class, 'getByCategory']);
