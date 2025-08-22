@@ -15,12 +15,17 @@ class ServiceController extends Controller
     public function index()
     {
         $services = Service::with('category')->get()->map(function ($service) {
+            $photoUrl = $service->getFirstMediaUrl('service_image');
+            if (empty($photoUrl)) {
+                $photoUrl = asset('images/default-service.jpg');
+            }
             return [
                 'id' => $service->id,
                 'category_id' => $service->category_id,
                 'category_name' => $service->category ? $service->category->category_name : null,
                 'service_title' => $service->service_title,
                 'service_desc' => $service->service_desc,
+                'photo_url' => $photoUrl,
                 'created_at' => $service->created_at,
                 'updated_at' => $service->updated_at,
             ];
@@ -35,6 +40,7 @@ class ServiceController extends Controller
             'category_id' => 'required|exists:service_categories,id',
             'service_title' => 'required|string',
             'service_desc' => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -43,12 +49,22 @@ class ServiceController extends Controller
 
         $service = Service::create($validator->validated());
 
+        if ($request->hasFile('photo')) {
+            $service->addMediaFromRequest('photo')->toMediaCollection('service_image');
+        }
+
+        $photoUrl = $service->getFirstMediaUrl('service_image');
+        if (empty($photoUrl)) {
+            $photoUrl = asset('images/default-service.jpg');
+        }
+
         return $this->successResponse([
             'service' => [
                 'id' => $service->id,
                 'category_id' => $service->category_id,
                 'service_title' => $service->service_title,
                 'service_desc' => $service->service_desc,
+                'photo_url' => $photoUrl,
                 'created_at' => $service->created_at,
                 'updated_at' => $service->updated_at,
             ]
@@ -62,6 +78,10 @@ class ServiceController extends Controller
         if (!$service) {
             return $this->errorResponse('الخدمة غير موجودة', 404);
         }
+        $photoUrl = $service->getFirstMediaUrl('service_image');
+        if (empty($photoUrl)) {
+            $photoUrl = asset('images/default-service.jpg');
+        }
         return $this->successResponse([
             'service' => [
                 'id' => $service->id,
@@ -69,6 +89,7 @@ class ServiceController extends Controller
                 'category_name' => $service->category ? $service->category->category_name : null,
                 'service_title' => $service->service_title,
                 'service_desc' => $service->service_desc,
+                'photo_url' => $photoUrl,
                 'created_at' => $service->created_at,
                 'updated_at' => $service->updated_at,
             ]
@@ -87,6 +108,7 @@ class ServiceController extends Controller
             'category_id' => 'nullable|exists:service_categories,id',
             'service_title' => 'nullable|string',
             'service_desc' => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -105,7 +127,17 @@ class ServiceController extends Controller
             $service->service_desc = $data['service_desc'];
         }
 
+        if ($request->hasFile('photo')) {
+            $service->clearMediaCollection('service_image');
+            $service->addMediaFromRequest('photo')->toMediaCollection('service_image');
+        }
+
         $service->save();
+
+        $photoUrl = $service->getFirstMediaUrl('service_image');
+        if (empty($photoUrl)) {
+            $photoUrl = asset('images/default-service.jpg');
+        }
 
         return $this->successResponse([
             'service' => [
@@ -113,6 +145,7 @@ class ServiceController extends Controller
                 'category_id' => $service->category_id,
                 'service_title' => $service->service_title,
                 'service_desc' => $service->service_desc,
+                'photo_url' => $photoUrl,
                 'created_at' => $service->created_at,
                 'updated_at' => $service->updated_at,
             ]
@@ -134,11 +167,16 @@ class ServiceController extends Controller
     public function getByCategory($category_id)
     {
         $services = Service::where('category_id', $category_id)->get()->map(function ($service) {
+            $photoUrl = $service->getFirstMediaUrl('service_image');
+            if (empty($photoUrl)) {
+                $photoUrl = asset('images/default-service.jpg');
+            }
             return [
                 'id' => $service->id,
                 'category_id' => $service->category_id,
                 'service_title' => $service->service_title,
                 'service_desc' => $service->service_desc,
+                'photo_url' => $photoUrl,
                 'created_at' => $service->created_at,
                 'updated_at' => $service->updated_at,
             ];
