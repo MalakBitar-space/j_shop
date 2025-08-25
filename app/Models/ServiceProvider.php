@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class ServiceProvider extends Model
+class ServiceProvider extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+
     // Add fillable fields for mass assignment
     protected $fillable = [
         'user_id',
@@ -45,5 +49,4 @@ class ServiceProvider extends Model
     {
         return $this->hasOne(Portfolio::class, 'provider_id');
     }
-
 }

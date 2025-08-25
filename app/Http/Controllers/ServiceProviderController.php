@@ -16,6 +16,9 @@ class ServiceProviderController extends Controller
     public function index()
     {
         $providers = ServiceProvider::with('user')->get()->map(function ($provider) {
+            $identityImgUrl = $provider->getFirstMediaUrl('identity_img') ?: asset('images/default-identity.jpg');
+            $coverImgUrl = $provider->getFirstMediaUrl('cover_img') ?: asset('images/default-cover.jpg');
+            $profileImgUrl = $provider->getFirstMediaUrl('profile_img') ?: asset('images/default-profile.jpg');
             return [
                 'id' => $provider->id,
                 'user_id' => $provider->user_id,
@@ -26,10 +29,10 @@ class ServiceProviderController extends Controller
                 'years_of_experience' => $provider->years_of_experience,
                 'min_price' => $provider->min_price,
                 'phone_number' => $provider->phone_number,
-                'profile_img' => $provider->profile_img,
-                'identity_img' => $provider->identity_img,
+                'identity_img' => $identityImgUrl,
+                'cover_img' => $coverImgUrl,
+                'profile_img' => $profileImgUrl,
                 'address' => $provider->address,
-                'cover_img' => $provider->cover_img,
                 'created_at' => $provider->created_at,
                 'updated_at' => $provider->updated_at,
             ];
@@ -48,6 +51,10 @@ class ServiceProviderController extends Controller
             return $this->errorResponse("مقدم الخدمة غير موجود!", 404);
         }
 
+        $identityImgUrl = $provider->getFirstMediaUrl('identity_img') ?: asset('images/default-identity.jpg');
+        $coverImgUrl = $provider->getFirstMediaUrl('cover_img') ?: asset('images/default-cover.jpg');
+        $profileImgUrl = $provider->getFirstMediaUrl('profile_img') ?: asset('images/default-profile.jpg');
+
         return $this->successResponse([
             'id' => $provider->id,
             'user_id' => $provider->user_id,
@@ -58,10 +65,10 @@ class ServiceProviderController extends Controller
             'years_of_experience' => $provider->years_of_experience,
             'min_price' => $provider->min_price,
             'phone_number' => $provider->phone_number,
-            'profile_img' => $provider->profile_img,
-            'identity_img' => $provider->identity_img,
+            'identity_img' => $identityImgUrl,
+            'cover_img' => $coverImgUrl,
+            'profile_img' => $profileImgUrl,
             'address' => $provider->address,
-            'cover_img' => $provider->cover_img,
             'created_at' => $provider->created_at,
             'updated_at' => $provider->updated_at,
         ], "تم جلب بيانات مقدم الخدمة بنجاح!");
@@ -72,7 +79,7 @@ class ServiceProviderController extends Controller
      */
     public function store(Request $request)
     {
-        $user = $request->user(); // Get user from token
+        $user = $request->user();
 
         $validatedData = $request->validate([
             'service_id' => 'required|exists:services,id',
@@ -81,16 +88,28 @@ class ServiceProviderController extends Controller
             'years_of_experience' => 'nullable|integer',
             'min_price' => 'nullable|numeric',
             'phone_number' => 'nullable|string',
-            'profile_img' => 'nullable|string',
-            'identity_img' => 'nullable|string',
+            'identity_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'cover_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'profile_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'address' => 'nullable|string',
-            'cover_img' => 'nullable|string',
         ]);
 
         $provider = ServiceProvider::create(array_merge(
-            $validatedData,
-            ['user_id' => $user->id] // Use authenticated user's ID
+            $request->except(['identity_img', 'cover_img', 'profile_img']),
+            ['user_id' => $user->id]
         ));
+
+        // Handle Spatie images
+        foreach (['identity_img', 'cover_img', 'profile_img'] as $imgField) {
+            if ($request->hasFile($imgField)) {
+                $provider->addMediaFromRequest($imgField)->toMediaCollection($imgField);
+            }
+        }
+
+        // Get image URLs with fallback
+        $identityImgUrl = $provider->getFirstMediaUrl('identity_img') ?: asset('images/default-identity.jpg');
+        $coverImgUrl = $provider->getFirstMediaUrl('cover_img') ?: asset('images/default-cover.jpg');
+        $profileImgUrl = $provider->getFirstMediaUrl('profile_img') ?: asset('images/default-profile.jpg');
 
         return $this->successResponse([
             'id' => $provider->id,
@@ -102,10 +121,10 @@ class ServiceProviderController extends Controller
             'years_of_experience' => $provider->years_of_experience,
             'min_price' => $provider->min_price,
             'phone_number' => $provider->phone_number,
-            'profile_img' => $provider->profile_img,
-            'identity_img' => $provider->identity_img,
+            'identity_img' => $identityImgUrl,
+            'cover_img' => $coverImgUrl,
+            'profile_img' => $profileImgUrl,
             'address' => $provider->address,
-            'cover_img' => $provider->cover_img,
             'created_at' => $provider->created_at,
             'updated_at' => $provider->updated_at,
         ], "تم إنشاء مقدم الخدمة بنجاح!", 201);
@@ -122,12 +141,44 @@ class ServiceProviderController extends Controller
             return $this->errorResponse("مقدم الخدمة غير موجود!", 404);
         }
 
-        $provider->update($request->only([
-            'specialization', 'professional_desc', 'years_of_experience', 'min_price',
-            'phone_number', 'profile_img', 'identity_img', 'address', 'cover_img'
-        ]));
+        $validator = Validator::make($request->all(), [
+            'specialization' => 'nullable|string',
+            'professional_desc' => 'nullable|string',
+            'years_of_experience' => 'nullable|integer',
+            'min_price' => 'nullable|numeric',
+            'phone_number' => 'nullable|string',
+            'identity_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'cover_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'profile_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'address' => 'nullable|string',
+        ]);
 
+        if ($validator->fails()) {
+            return $this->errorResponse($validator->errors()->first(), 422);
+        }
+
+        $data = $validator->validated();
+
+        foreach (['specialization', 'professional_desc', 'years_of_experience', 'min_price', 'phone_number', 'address'] as $field) {
+            if (isset($data[$field])) {
+                $provider->$field = $data[$field];
+            }
+        }
+
+        // Handle Spatie images
+        foreach (['identity_img', 'cover_img', 'profile_img'] as $imgField) {
+            if ($request->hasFile($imgField)) {
+                $provider->clearMediaCollection($imgField);
+                $provider->addMediaFromRequest($imgField)->toMediaCollection($imgField);
+            }
+        }
+
+        $provider->save();
         $provider->load('user');
+
+        $identityImgUrl = $provider->getFirstMediaUrl('identity_img') ?: asset('images/default-identity.jpg');
+        $coverImgUrl = $provider->getFirstMediaUrl('cover_img') ?: asset('images/default-cover.jpg');
+        $profileImgUrl = $provider->getFirstMediaUrl('profile_img') ?: asset('images/default-profile.jpg');
 
         return $this->successResponse([
             'id' => $provider->id,
@@ -139,10 +190,10 @@ class ServiceProviderController extends Controller
             'years_of_experience' => $provider->years_of_experience,
             'min_price' => $provider->min_price,
             'phone_number' => $provider->phone_number,
-            'profile_img' => $provider->profile_img,
-            'identity_img' => $provider->identity_img,
+            'identity_img' => $identityImgUrl,
+            'cover_img' => $coverImgUrl,
+            'profile_img' => $profileImgUrl,
             'address' => $provider->address,
-            'cover_img' => $provider->cover_img,
             'created_at' => $provider->created_at,
             'updated_at' => $provider->updated_at,
         ], "تم تحديث بيانات مقدم الخدمة بنجاح!");
@@ -170,6 +221,9 @@ class ServiceProviderController extends Controller
     public function getByService($service_id)
     {
         $providers = ServiceProvider::with('user')->where('service_id', $service_id)->get()->map(function ($provider) {
+            $identityImgUrl = $provider->getFirstMediaUrl('identity_img') ?: asset('images/default-identity.jpg');
+            $coverImgUrl = $provider->getFirstMediaUrl('cover_img') ?: asset('images/default-cover.jpg');
+            $profileImgUrl = $provider->getFirstMediaUrl('profile_img') ?: asset('images/default-profile.jpg');
             return [
                 'id' => $provider->id,
                 'user_id' => $provider->user_id,
@@ -180,10 +234,10 @@ class ServiceProviderController extends Controller
                 'years_of_experience' => $provider->years_of_experience,
                 'min_price' => $provider->min_price,
                 'phone_number' => $provider->phone_number,
-                'profile_img' => $provider->profile_img,
-                'identity_img' => $provider->identity_img,
+                'identity_img' => $identityImgUrl,
+                'cover_img' => $coverImgUrl,
+                'profile_img' => $profileImgUrl,
                 'address' => $provider->address,
-                'cover_img' => $provider->cover_img,
                 'created_at' => $provider->created_at,
                 'updated_at' => $provider->updated_at,
             ];
