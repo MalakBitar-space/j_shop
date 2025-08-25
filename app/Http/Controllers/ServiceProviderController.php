@@ -15,7 +15,25 @@ class ServiceProviderController extends Controller
      */
     public function index()
     {
-        $providers = ServiceProvider::all();
+        $providers = ServiceProvider::with('user')->get()->map(function ($provider) {
+            return [
+                'id' => $provider->id,
+                'user_id' => $provider->user_id,
+                'user_name' => $provider->user ? $provider->user->name : null,
+                'service_id' => $provider->service_id,
+                'specialization' => $provider->specialization,
+                'professional_desc' => $provider->professional_desc,
+                'years_of_experience' => $provider->years_of_experience,
+                'min_price' => $provider->min_price,
+                'phone_number' => $provider->phone_number,
+                'profile_img' => $provider->profile_img,
+                'identity_img' => $provider->identity_img,
+                'address' => $provider->address,
+                'cover_img' => $provider->cover_img,
+                'created_at' => $provider->created_at,
+                'updated_at' => $provider->updated_at,
+            ];
+        });
         return $this->successResponse($providers, "تم جلب جميع مقدمي الخدمات بنجاح!");
     }
 
@@ -24,13 +42,29 @@ class ServiceProviderController extends Controller
      */
     public function show($id)
     {
-        $provider = ServiceProvider::find($id);
+        $provider = ServiceProvider::with('user')->find($id);
 
         if (!$provider) {
             return $this->errorResponse("مقدم الخدمة غير موجود!", 404);
         }
 
-        return $this->successResponse($provider, "تم جلب بيانات مقدم الخدمة بنجاح!");
+        return $this->successResponse([
+            'id' => $provider->id,
+            'user_id' => $provider->user_id,
+            'user_name' => $provider->user ? $provider->user->name : null,
+            'service_id' => $provider->service_id,
+            'specialization' => $provider->specialization,
+            'professional_desc' => $provider->professional_desc,
+            'years_of_experience' => $provider->years_of_experience,
+            'min_price' => $provider->min_price,
+            'phone_number' => $provider->phone_number,
+            'profile_img' => $provider->profile_img,
+            'identity_img' => $provider->identity_img,
+            'address' => $provider->address,
+            'cover_img' => $provider->cover_img,
+            'created_at' => $provider->created_at,
+            'updated_at' => $provider->updated_at,
+        ], "تم جلب بيانات مقدم الخدمة بنجاح!");
     }
 
     /**
@@ -38,8 +72,9 @@ class ServiceProviderController extends Controller
      */
     public function store(Request $request)
     {
+        $user = $request->user(); // Get user from token
+
         $validatedData = $request->validate([
-            'user_id' => 'required|exists:users,id',
             'service_id' => 'required|exists:services,id',
             'specialization' => 'required|string',
             'professional_desc' => 'nullable|string',
@@ -52,9 +87,28 @@ class ServiceProviderController extends Controller
             'cover_img' => 'nullable|string',
         ]);
 
-        $provider = ServiceProvider::create($validatedData);
+        $provider = ServiceProvider::create(array_merge(
+            $validatedData,
+            ['user_id' => $user->id] // Use authenticated user's ID
+        ));
 
-        return $this->successResponse($provider, "تم إنشاء مقدم الخدمة بنجاح!", 201);
+        return $this->successResponse([
+            'id' => $provider->id,
+            'user_id' => $provider->user_id,
+            'user_name' => $user->name,
+            'service_id' => $provider->service_id,
+            'specialization' => $provider->specialization,
+            'professional_desc' => $provider->professional_desc,
+            'years_of_experience' => $provider->years_of_experience,
+            'min_price' => $provider->min_price,
+            'phone_number' => $provider->phone_number,
+            'profile_img' => $provider->profile_img,
+            'identity_img' => $provider->identity_img,
+            'address' => $provider->address,
+            'cover_img' => $provider->cover_img,
+            'created_at' => $provider->created_at,
+            'updated_at' => $provider->updated_at,
+        ], "تم إنشاء مقدم الخدمة بنجاح!", 201);
     }
 
     /**
@@ -73,7 +127,25 @@ class ServiceProviderController extends Controller
             'phone_number', 'profile_img', 'identity_img', 'address', 'cover_img'
         ]));
 
-        return $this->successResponse($provider, "تم تحديث بيانات مقدم الخدمة بنجاح!");
+        $provider->load('user');
+
+        return $this->successResponse([
+            'id' => $provider->id,
+            'user_id' => $provider->user_id,
+            'user_name' => $provider->user ? $provider->user->name : null,
+            'service_id' => $provider->service_id,
+            'specialization' => $provider->specialization,
+            'professional_desc' => $provider->professional_desc,
+            'years_of_experience' => $provider->years_of_experience,
+            'min_price' => $provider->min_price,
+            'phone_number' => $provider->phone_number,
+            'profile_img' => $provider->profile_img,
+            'identity_img' => $provider->identity_img,
+            'address' => $provider->address,
+            'cover_img' => $provider->cover_img,
+            'created_at' => $provider->created_at,
+            'updated_at' => $provider->updated_at,
+        ], "تم تحديث بيانات مقدم الخدمة بنجاح!");
     }
 
     /**
@@ -97,7 +169,25 @@ class ServiceProviderController extends Controller
      */
     public function getByService($service_id)
     {
-        $providers = ServiceProvider::where('service_id', $service_id)->get();
+        $providers = ServiceProvider::with('user')->where('service_id', $service_id)->get()->map(function ($provider) {
+            return [
+                'id' => $provider->id,
+                'user_id' => $provider->user_id,
+                'user_name' => $provider->user ? $provider->user->name : null,
+                'service_id' => $provider->service_id,
+                'specialization' => $provider->specialization,
+                'professional_desc' => $provider->professional_desc,
+                'years_of_experience' => $provider->years_of_experience,
+                'min_price' => $provider->min_price,
+                'phone_number' => $provider->phone_number,
+                'profile_img' => $provider->profile_img,
+                'identity_img' => $provider->identity_img,
+                'address' => $provider->address,
+                'cover_img' => $provider->cover_img,
+                'created_at' => $provider->created_at,
+                'updated_at' => $provider->updated_at,
+            ];
+        });
         return $this->successResponse($providers, "تم جلب مقدمي الخدمة حسب الخدمة بنجاح!");
     }
 }
