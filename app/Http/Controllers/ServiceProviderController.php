@@ -2,8 +2,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\ServiceProvider;
-use Illuminate\Http\Request;
 use App\Traits\ApiResponseTrait;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ServiceProviderController extends Controller
 {
@@ -89,5 +90,14 @@ class ServiceProviderController extends Controller
         $provider->delete();
 
         return $this->successResponse(null, "تم حذف مقدم الخدمة بنجاح!");
+    }
+
+    /**
+     * الحصول على مقدمي الخدمة حسب الخدمة
+     */
+    public function getByService($service_id)
+    {
+        $providers = ServiceProvider::where('service_id', $service_id)->get();
+        return $this->successResponse($providers, "تم جلب مقدمي الخدمة حسب الخدمة بنجاح!");
     }
 }

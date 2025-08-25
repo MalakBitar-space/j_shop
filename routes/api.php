@@ -14,6 +14,7 @@ route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])-
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ServiceCategoryController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\ServiceProviderController;
 
 Route::middleware('auth:sanctum')->group(function () {
     
@@ -34,3 +35,12 @@ Route::get('show-service/{id}', [ServiceController::class, 'show']);
 Route::post('update-service/{id}', [ServiceController::class, 'update']);
 Route::delete('delete-service/{id}', [ServiceController::class, 'destroy']);
 Route::get('services-by-category/{category_id}', [ServiceController::class, 'getByCategory']);
+
+
+
+Route::get('/index-provider', [ServiceProviderController::class, 'index']);
+Route::get('/show-provider/{id}', [ServiceProviderController::class, 'show']);
+Route::post('/create-provider', [ServiceProviderController::class, 'store']);
+Route::put('/update-provider/{id}', [ServiceProviderController::class, 'update']);
+Route::delete('/delete-providers/{id}', [ServiceProviderController::class, 'destroy']);
+Route::get('/providers-by-service/{service_id}', [ServiceProviderController::class, 'getByService']);
