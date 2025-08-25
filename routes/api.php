@@ -44,11 +44,9 @@ Route::get('services-by-category/{category_id}', [ServiceController::class, 'get
 
 
 
-Route::middleware('auth:sanctum')->group(function () {
     Route::get('/index-provider', [ServiceProviderController::class, 'index']);
     Route::get('/show-provider/{id}', [ServiceProviderController::class, 'show']);
-    Route::post('/create-provider', [ServiceProviderController::class, 'store']);
-    Route::put('/update-provider/{id}', [ServiceProviderController::class, 'update']);
-    Route::delete('/delete-providers/{id}', [ServiceProviderController::class, 'destroy']);
+    Route::post('/create-provider', [ServiceProviderController::class, 'store'])->middleware('auth:sanctum');
+    Route::post('/update-provider/{id}', [ServiceProviderController::class, 'update'])->middleware('auth:sanctum');
+    Route::delete('/delete-providers/{id}', [ServiceProviderController::class, 'destroy'])->middleware('auth:sanctum');
     Route::get('/providers-by-service/{service_id}', [ServiceProviderController::class, 'getByService']);
-});
