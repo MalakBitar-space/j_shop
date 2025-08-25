@@ -56,7 +56,7 @@ class ServiceCategoryController extends Controller
     {
         $validated = $request->validate([
             'category_name' => 'required|string|unique:service_categories,category_name',
-            'category_desc' => 'required|string|unique:service_categories,category_desc',
+            'category_desc' => 'required|string', // removed unique constraint
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
         $category = ServiceCategory::create($validated);
