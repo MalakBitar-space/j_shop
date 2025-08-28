@@ -21,13 +21,14 @@ public function register(Request $request)
     $request->validate([
         'name'     => 'required|string|max:100',
         'email' => [
-    'required',
-    'email',
-    'max:100',
-    'regex:/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/'
-],
- // بدون unique هون
+            'required',
+            'email',
+            'max:100',
+            'regex:/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/'
+        ],
         'password' => 'required|string|min:8',
+        'phone_number' => 'nullable|string|max:20',
+        'address' => 'nullable|string|max:255',
     ]);
 
     try {
@@ -35,6 +36,8 @@ public function register(Request $request)
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
+            'phone_number' => $request->phone_number,
+            'address' => $request->address,
         ]);
     } catch (QueryException $e) {
         if ($e->getCode() == '23000') {
@@ -51,7 +54,15 @@ public function register(Request $request)
     }
 
     return $this->successResponse(
-        ['user' => $user],
+        ['user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone_number' => $user->phone_number,
+            'address' => $user->address,
+            'created_at' => $user->created_at,
+            'updated_at' => $user->updated_at,
+        ]],
         'تم تسجيل المستخدم بنجاح',
         201
     );
@@ -65,7 +76,7 @@ public function login(Request $request)
         'password' => 'required|string',
     ]);
 
-    $email = strtolower($request->email); // ← التصغير
+    $email = strtolower($request->email);
 
     $user = User::where('email', $email)->first();
 
@@ -76,7 +87,15 @@ public function login(Request $request)
     $token = $user->createToken('auth_token')->plainTextToken;
 
     return $this->successResponse([
-        'user' => $user,
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone_number' => $user->phone_number,
+            'address' => $user->address,
+            'created_at' => $user->created_at,
+            'updated_at' => $user->updated_at,
+        ],
         'token' => $token
     ], 'تم تسجيل الدخول بنجاح');
 }
