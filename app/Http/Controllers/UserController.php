@@ -22,10 +22,12 @@ class UserController extends Controller
 
         return $this->successResponse([
             'user' => [
-                'id'         => $user->id,
-                'name'       => $user->name,
-                'email'      => $user->email,
-                'photo_url'  => $photoUrl, // always fallback to default
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number,
+                'address' => $user->address,
+                'photo_url' => $photoUrl,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
             ]
@@ -37,10 +39,18 @@ class UserController extends Controller
         $user = $request->user();
 
         $validator = Validator::make($request->all(), [
-            'name'     => 'nullable|string|max:100',
-            'email'    => 'nullable|email|max:100',
+            'name' => 'nullable|string|max:100',
+            'email' => [
+                'nullable',
+                'email',
+                'max:100',
+                'regex:/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/',
+                'unique:users,email,' . $user->id,
+            ],
             'password' => 'nullable|string|min:8',
-            'photo'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'phone_number' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -52,13 +62,17 @@ class UserController extends Controller
         if (isset($data['name'])) {
             $user->name = $data['name'];
         }
-
         if (isset($data['email'])) {
             $user->email = strtolower($data['email']);
         }
-
         if (isset($data['password'])) {
-            $user->password = $data['password']; // بدون Hash::make()
+            $user->password = Hash::make($data['password']);
+        }
+        if (isset($data['phone_number'])) {
+            $user->phone_number = $data['phone_number'];
+        }
+        if (isset($data['address'])) {
+            $user->address = $data['address'];
         }
 
         if ($request->hasFile('photo')) {
@@ -75,10 +89,13 @@ class UserController extends Controller
 
         return $this->successResponse([
             'user' => [
-                'id'         => $user->id,
-                'name'       => $user->name,
-                'email'      => $user->email,
-                'photo_url'  => $photoUrl, // always fallback to default
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number,
+                'address' => $user->address,
+                'photo_url' => $photoUrl,
+                'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
             ]
         ], 'تم تحديث الملف الشخصي بنجاح');
