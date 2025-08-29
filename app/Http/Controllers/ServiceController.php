@@ -47,7 +47,7 @@ class ServiceController extends Controller
             'service_creator_name' => 'nullable|string|max:100',
             'service_creator_address' => 'nullable|string|max:255',
             'service_creator_phone_number' => 'nullable|string|max:20',
-            'service_price' => 'nullable|numeric',
+            'service_price' => 'required|numeric',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -127,7 +127,7 @@ class ServiceController extends Controller
             'service_creator_name' => 'nullable|string|max:100',
             'service_creator_address' => 'nullable|string|max:255',
             'service_creator_phone_number' => 'nullable|string|max:20',
-            'service_price' => 'nullable|numeric',
+            'service_price' => 'required|numeric',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
