@@ -41,7 +41,7 @@ Route::get('show-service/{id}', [ServiceController::class, 'show']);
 Route::post('update-service/{id}', [ServiceController::class, 'update']);
 Route::delete('delete-service/{id}', [ServiceController::class, 'destroy']);
 Route::get('services-by-category/{category_id}', [ServiceController::class, 'getByCategory']);
-
+Route::get('/services-by-creator-name', [ServiceController::class, 'getByCreatorName']);
 
 
     Route::get('/index-provider', [ServiceProviderController::class, 'index']);

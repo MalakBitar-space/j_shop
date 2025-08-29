@@ -207,4 +207,34 @@ class ServiceController extends Controller
         });
         return $this->successResponse(['services' => $services], 'تم جلب الخدمات حسب التصنيف بنجاح');
     }
+
+    // POST /services-by-creator-name
+    public function getByCreatorName(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string'
+        ]);
+
+        $services = Service::where('service_creator_name', $request->name)->get()->map(function ($service) {
+            $photoUrl = $service->getFirstMediaUrl('service_image');
+            if (empty($photoUrl)) {
+                $photoUrl = asset('images/default-service.jpg');
+            }
+            return [
+                'id' => $service->id,
+                'category_id' => $service->category_id,
+                'service_title' => $service->service_title,
+                'service_desc' => $service->service_desc,
+                'service_creator_name' => $service->service_creator_name,
+                'service_creator_address' => $service->service_creator_address,
+                'service_creator_phone_number' => $service->service_creator_phone_number,
+                'service_price' => $service->service_price,
+                'photo_url' => $photoUrl,
+                'created_at' => $service->created_at,
+                'updated_at' => $service->updated_at,
+            ];
+        });
+
+        return $this->successResponse(['services' => $services], 'تم جلب الخدمات حسب اسم المنشئ بنجاح');
+    }
 }
