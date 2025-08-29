@@ -14,6 +14,10 @@ class Service extends Model implements HasMedia
         'category_id',
         'service_title',
         'service_desc',
+        'service_creator_name',
+        'service_creator_address',
+        'service_creator_phone_number',
+        'service_price',
     ];
 
     public function category()

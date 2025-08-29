@@ -25,6 +25,10 @@ class ServiceController extends Controller
                 'category_name' => $service->category ? $service->category->category_name : null,
                 'service_title' => $service->service_title,
                 'service_desc' => $service->service_desc,
+                'service_creator_name' => $service->service_creator_name,
+                'service_creator_address' => $service->service_creator_address,
+                'service_creator_phone_number' => $service->service_creator_phone_number,
+                'service_price' => $service->service_price,
                 'photo_url' => $photoUrl,
                 'created_at' => $service->created_at,
                 'updated_at' => $service->updated_at,
@@ -40,6 +44,10 @@ class ServiceController extends Controller
             'category_id' => 'required|exists:service_categories,id',
             'service_title' => 'required|string',
             'service_desc' => 'nullable|string',
+            'service_creator_name' => 'nullable|string|max:100',
+            'service_creator_address' => 'nullable|string|max:255',
+            'service_creator_phone_number' => 'nullable|string|max:20',
+            'service_price' => 'nullable|numeric',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -64,6 +72,10 @@ class ServiceController extends Controller
                 'category_id' => $service->category_id,
                 'service_title' => $service->service_title,
                 'service_desc' => $service->service_desc,
+                'service_creator_name' => $service->service_creator_name,
+                'service_creator_address' => $service->service_creator_address,
+                'service_creator_phone_number' => $service->service_creator_phone_number,
+                'service_price' => $service->service_price,
                 'photo_url' => $photoUrl,
                 'created_at' => $service->created_at,
                 'updated_at' => $service->updated_at,
@@ -89,6 +101,10 @@ class ServiceController extends Controller
                 'category_name' => $service->category ? $service->category->category_name : null,
                 'service_title' => $service->service_title,
                 'service_desc' => $service->service_desc,
+                'service_creator_name' => $service->service_creator_name,
+                'service_creator_address' => $service->service_creator_address,
+                'service_creator_phone_number' => $service->service_creator_phone_number,
+                'service_price' => $service->service_price,
                 'photo_url' => $photoUrl,
                 'created_at' => $service->created_at,
                 'updated_at' => $service->updated_at,
@@ -108,6 +124,10 @@ class ServiceController extends Controller
             'category_id' => 'nullable|exists:service_categories,id',
             'service_title' => 'nullable|string',
             'service_desc' => 'nullable|string',
+            'service_creator_name' => 'nullable|string|max:100',
+            'service_creator_address' => 'nullable|string|max:255',
+            'service_creator_phone_number' => 'nullable|string|max:20',
+            'service_price' => 'nullable|numeric',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -117,14 +137,14 @@ class ServiceController extends Controller
 
         $data = $validator->validated();
 
-        if (isset($data['category_id'])) {
-            $service->category_id = $data['category_id'];
-        }
-        if (isset($data['service_title'])) {
-            $service->service_title = $data['service_title'];
-        }
-        if (isset($data['service_desc'])) {
-            $service->service_desc = $data['service_desc'];
+        foreach ([
+            'category_id', 'service_title', 'service_desc',
+            'service_creator_name', 'service_creator_address',
+            'service_creator_phone_number', 'service_price'
+        ] as $field) {
+            if (isset($data[$field])) {
+                $service->$field = $data[$field];
+            }
         }
 
         if ($request->hasFile('photo')) {
@@ -145,6 +165,10 @@ class ServiceController extends Controller
                 'category_id' => $service->category_id,
                 'service_title' => $service->service_title,
                 'service_desc' => $service->service_desc,
+                'service_creator_name' => $service->service_creator_name,
+                'service_creator_address' => $service->service_creator_address,
+                'service_creator_phone_number' => $service->service_creator_phone_number,
+                'service_price' => $service->service_price,
                 'photo_url' => $photoUrl,
                 'created_at' => $service->created_at,
                 'updated_at' => $service->updated_at,
