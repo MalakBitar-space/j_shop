@@ -50,3 +50,11 @@ Route::get('/services-by-creator-name', [ServiceController::class, 'getByCreator
     Route::post('/update-provider/{id}', [ServiceProviderController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/delete-providers/{id}', [ServiceProviderController::class, 'destroy'])->middleware('auth:sanctum');
     Route::get('/providers-by-service/{service_id}', [ServiceProviderController::class, 'getByService']);
+
+use App\Http\Controllers\EvaluationController;
+
+Route::get('/index_evaluations', [EvaluationController::class, 'index']);           // عرض كل التقييمات
+Route::get('/show_evaluations/{id}', [EvaluationController::class, 'show']);       // عرض تقييم معين
+Route::post('/create_evaluations', [EvaluationController::class, 'store']);          // إنشاء تقييم جديد
+Route::post('/evaluations/{id}', [EvaluationController::class, 'update']);     // تعديل تقييم
+Route::delete('/evaluations/{id}', [EvaluationController::class, 'destroy']); // حذف تقييم
